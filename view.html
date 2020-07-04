@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoSchedule Challenge</title>
+</head>
+<body>
+    <h1>Joke Randomizer!</h1>
+    <table>
+        <tr>
+            <td><textarea id="deleteJokeArea" placeholder="Enter Joke #" rows="1"></textarea></td>
+            <td><button id="deleteJoke">Delete Joke</button></td>
+            <td><textarea id="setupArea" placeholder="Enter Setup" rows="1"></textarea></td>
+            <td><button id="createJoke">Create Joke</button></td>
+        </tr>
+        <tr>
+            <td><textarea id="searchArea" placeholder="Enter Search Criteria" rows="1"></textarea></td>
+            <td><button id="searchJoke">Search For Joke</button></td>
+            <td><textarea id="punchlineArea" placeholder="Enter Punchline" rows="1"></textarea></td>
+        </tr>
+        <tr>
+            <td><button id="getJoke">Get 10 Jokes</button></td>
+        </tr>
+    </table>
+    <div id="output"></div>
+    <script>
+        let jokeList = [];
+        setupView();
+
+        function searchJoke(){
+            let inputText = document.getElementById('searchArea').value
+            let output = '';
+            let count = 0;
+            jokeList.forEach(joke => {                    
+                if(joke[0].indexOf(inputText) >= 0 || joke[1].indexOf(inputText) >= 0){
+                    output += '<h4>' + (count + 1) + ".) " + joke[0] + '</h4>' + '<h5>' + "    " + joke[1] + '</h5>';
+                    document.getElementById('output').innerHTML = output;
+                    count++;
+                }
+            })
+            if(count == 0){
+                let output = '<h2>No joke contains the search criteria</h2>'
+                document.getElementById('output').innerHTML = output;
+            }
+        }
+        
+        function getJokes(){
+            showControls();
+            fetch('https://official-joke-api.appspot.com/jokes/programming/ten')
+            .then((res) => res.json())
+            .then((data) => {
+                let output = ''
+                for(i = 0; i<10; i++){
+                    output += '<h4>' + (i + 1) + ".) " + data[i].setup + '</h4>' + '<h5>' + "    " + data[i].punchline + '</h5>';
+                    jokeList.push([data[i].setup,data[i].punchline]);
+                }
+                document.getElementById('output').innerHTML = output;
+            })
+        }
+
+        function deleteJoke(){
+            let inputText = document.getElementById('deleteJokeArea').value;
+            jokeList.splice(parseInt(inputText)-1, 1);
+            let count = 0;
+            output = '';
+            jokeList.forEach(joke => {                    
+                output += '<h4>' + (count + 1) + ".) " + joke[0] + '</h4>' + '<h5>' + "    " + joke[1] + '</h5>';
+                document.getElementById('output').innerHTML = output;
+                count++;
+            })
+            document.getElementById('deleteJokeArea').value = "";
+        }
+
+        function createJoke(){
+            let setupText = document.getElementById('setupArea').value;
+            let punchlineText = document.getElementById('punchlineArea').value;
+            if(setupText != "" && punchlineText != ""){
+                jokeList.push([setupText, punchlineText]);
+            }
+            let count = 0;
+            output = '';
+            jokeList.forEach(joke => {                    
+                output += '<h4>' + (count + 1) + ".) " + joke[0] + '</h4>' + '<h5>' + "    " + joke[1] + '</h5>';
+                document.getElementById('output').innerHTML = output;
+                count++;
+            })
+            document.getElementById('setupArea').value = "";
+            document.getElementById('punchlineArea').value = "";
+        }
+
+        function setupView(){
+            document.getElementById('deleteJokeArea').style.visibility = "hidden";
+            document.getElementById('deleteJoke').style.visibility = "hidden";
+            document.getElementById('setupArea').style.visibility = "hidden";
+            document.getElementById('punchlineArea').style.visibility = "hidden";
+            document.getElementById('createJoke').style.visibility = "hidden";
+            document.getElementById('searchArea').style.visibility = "hidden";
+            document.getElementById('searchJoke').style.visibility = "hidden";
+            document.getElementById('searchJoke').addEventListener('click', searchJoke);
+            document.getElementById('getJoke').addEventListener('click', getJokes);
+            document.getElementById('deleteJoke').addEventListener('click', deleteJoke);
+            document.getElementById('createJoke').addEventListener('click', createJoke);
+            }
+
+        function showControls(){
+            document.getElementById('getJoke').style.visibility = "hidden";
+            document.getElementById('deleteJokeArea').style.visibility = "visible";
+            document.getElementById('deleteJoke').style.visibility = "visible";
+            document.getElementById('setupArea').style.visibility = "visible";
+            document.getElementById('punchlineArea').style.visibility = "visible";
+            document.getElementById('createJoke').style.visibility = "visible";
+            document.getElementById('searchArea').style.visibility = "visible";
+            document.getElementById('searchJoke').style.visibility = "visible";
+        }
+
+    </script>
+</body>
+</html>
